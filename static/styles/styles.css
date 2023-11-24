@@ -18,6 +18,7 @@ label {
 
 select {
     width: 100%;
+    height: 450px;  /* Ajusta el valor según sea necesario */
     padding: 8px;
     margin-bottom: 16px;
     box-sizing: border-box;
@@ -43,6 +44,12 @@ ul {
 
 li {
     margin-bottom: 20px;
+    border: 2px solid gray;  /* Puedes cambiar #ccc al color que desees */
+    padding: 10px;  /* Agregado para dar espacio dentro del borde, ajusta según sea necesario */
+}
+
+li strong + strong {
+    padding-left: 25px;  /* Agregar espacio entre los elementos strong */
 }
 
 strong {

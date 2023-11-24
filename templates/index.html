@@ -25,7 +25,7 @@
 
     <h2>Add your Symptoms</h2>
     <form method="post" action="/query">
-        <label for="symptoms">Select:</label>
+        <label for="symptoms"></label>
         <select name="symptoms" multiple>
             <option value="http://ex.org/cardiovascularFinding">Cardiovascular finding</option>
             <option value="http://ex.org/hypercapnia">Hypercapnia</option>
@@ -443,10 +443,10 @@
         <ul>
             {% for disease_uri, number_coincidences, total_symptoms, dbpedia_link, dbpedia_summary, symptoms in dbpedia_results %}
                 <li>
-                    <strong>Disease:</strong> {{ disease_uri }} <strong>Coincidences:</strong> {{ number_coincidences }} / {{total_symptoms}}<br>
-                    <strong>Symptoms:</strong> {{ ', '.join(symptoms) }} <br>
-                    <strong>Abstract:</strong> {{ dbpedia_summary }}<br>
-                    <strong><a href="{{ dbpedia_link }}">See more</a></strong><br> 
+                    <strong>Disease:</strong> {{ disease_uri }} <strong>Coincidences:</strong> {{ number_coincidences }} / {{total_symptoms}}<br><br>
+                    <strong>Symptoms:</strong> {{ ', '.join(symptoms) }}.<br><br>
+                    <strong>Abstract:</strong> {{ dbpedia_summary }}<br><br>
+                    <strong><a href="{{ dbpedia_link }}">See more</a></strong><br>
                 </li>
             {% endfor %}
         </ul>
