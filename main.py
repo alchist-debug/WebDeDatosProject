@@ -6,7 +6,8 @@ from rdflib.plugins.parsers.notation3 import N3Parser
 from SPARQLWrapper import SPARQLWrapper, JSON
 from rdflib.plugins.sparql import prepareQuery
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
+
 
 rdf_graph = Graph()
 
@@ -69,13 +70,15 @@ def query():
 
     # Printeamos la lista de enfermedades encontradas con su respectivo resumen y sintomas
     for row in results:
-        disease_uri = row[0].n3()
+        disease_uri_prev = row[0].n3()
         symptoms_coincidences = row[1].n3()
         number_coincidences = extraer_entero(symptoms_coincidences)
-        symptoms = get_symptoms(disease_uri)
-        disease_uri = get_disease_name(disease_uri)
+        symptoms = get_symptoms(disease_uri_prev)
+        disease_uri = get_disease_name(disease_uri_prev)
+        dbpedia_link = generate_dbpedia_url(disease_uri)
+        disease_uri = get_disease_name2(disease_uri_prev)
         dbpedia_summary = query_dbpedia_abstract(disease_uri)
-        dbpedia_results.append((disease_uri, number_coincidences, total_symptoms, dbpedia_summary, symptoms))
+        dbpedia_results.append((disease_uri, number_coincidences, total_symptoms, dbpedia_link, dbpedia_summary, symptoms))
 
     return render_template('index.html', dbpedia_results=dbpedia_results, get_disease_name=get_disease_name)
 
@@ -96,6 +99,12 @@ def get_symptoms(disease_uri):
         symptoms.append(symptoms_name)
     return symptoms
 
+def generate_dbpedia_url(disease_name):    
+    # Construye la URL de dbpedia.org
+    dbpedia_url = f"https://dbpedia.org/page/{disease_name}"
+    
+    return dbpedia_url
+
 def extraer_entero(cadena):
     # Utilizamos una expresión regular para encontrar el entero en el formato dado
     match = re.search(r'"(-?\d+)"\^\^<http://www.w3.org/2001/XMLSchema#integer>', cadena)
@@ -112,9 +121,27 @@ def extraer_entero(cadena):
 
 def get_disease_name(disease_uri):
     # Extraer el nombre de la enfermedad desde la URI
+    name = disease_uri.split('/')[-1]
+
+    if name == "Alzheimers_disease>":
+        name = "Alzheimer's_disease"
+
+    if name == "Cushings_disease>":
+        name = "Cushing's_disease"
+
+    return name.rstrip('>')
+
+def get_disease_name2(disease_uri):
+    # Extraer el nombre de la enfermedad desde la URI
     name = disease_uri.split('/')[-1].replace('_', ' ')
-    # Transformar la primera letra a mayúscula y eliminar caracteres no deseados al final de la cadena
-    return name.capitalize().rstrip('>')
+
+    if name == "Alzheimers disease>":
+        name = "Alzheimer's disease"
+
+    if name == "Cushings disease>":
+        name = "Cushing's disease"
+    
+    return name.rstrip('>')
 
 def query_dbpedia_abstract(disease_name):
     # Construir la consulta SPARQL para obtener el resumen de DBpedia

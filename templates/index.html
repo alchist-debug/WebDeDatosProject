@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Disease Inspector</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/styles.css') }}">
 </head>
 <body>
     <h1>Disease Inspector</h1>
@@ -440,11 +441,12 @@
     {% if dbpedia_results %}
         <h2>Diseases Info:</h2>
         <ul>
-            {% for disease_uri, number_coincidences, total_symptoms, dbpedia_summary, symptoms in dbpedia_results %}
+            {% for disease_uri, number_coincidences, total_symptoms, dbpedia_link, dbpedia_summary, symptoms in dbpedia_results %}
                 <li>
                     <strong>Disease:</strong> {{ disease_uri }} <strong>Coincidences:</strong> {{ number_coincidences }} / {{total_symptoms}}<br>
+                    <strong>Symptoms:</strong> {{ ', '.join(symptoms) }} <br>
                     <strong>Abstract:</strong> {{ dbpedia_summary }}<br>
-                    <strong>Symptoms:</strong> {{ ', '.join(symptoms) }}
+                    <strong><a href="{{ dbpedia_link }}">See more</a></strong><br> 
                 </li>
             {% endfor %}
         </ul>
