@@ -1,4 +1,5 @@
 import os
+import re
 from flask import Flask, render_template, request
 from rdflib import Graph
 from rdflib.plugins.parsers.notation3 import N3Parser
@@ -44,7 +45,7 @@ def extract_rdf(file):
 def query():
     # Obtener la lista de síntomas seleccionados desde el formulario
     selected_symptoms = request.form.getlist('symptoms')
-
+    total_symptoms = len(selected_symptoms)
     # Construir la consulta SPARQL dinámicamente
     sparql_query = f"""
         SELECT ?disease (COUNT(?symptom) as ?coincidences)
@@ -69,10 +70,12 @@ def query():
     # Printeamos la lista de enfermedades encontradas con su respectivo resumen y sintomas
     for row in results:
         disease_uri = row[0].n3()
+        symptoms_coincidences = row[1].n3()
+        number_coincidences = extraer_entero(symptoms_coincidences)
         symptoms = get_symptoms(disease_uri)
         disease_uri = get_disease_name(disease_uri)
         dbpedia_summary = query_dbpedia_abstract(disease_uri)
-        dbpedia_results.append((disease_uri, dbpedia_summary, symptoms))
+        dbpedia_results.append((disease_uri, number_coincidences, total_symptoms, dbpedia_summary, symptoms))
 
     return render_template('index.html', dbpedia_results=dbpedia_results, get_disease_name=get_disease_name)
 
@@ -92,6 +95,20 @@ def get_symptoms(disease_uri):
         symptoms_name = get_disease_name(row[0].n3())
         symptoms.append(symptoms_name)
     return symptoms
+
+def extraer_entero(cadena):
+    # Utilizamos una expresión regular para encontrar el entero en el formato dado
+    match = re.search(r'"(-?\d+)"\^\^<http://www.w3.org/2001/XMLSchema#integer>', cadena)
+    
+    # Verificamos si se encontró una coincidencia y devolvemos el entero como un int
+    if match:
+        entero = int(match.group(1))
+        return entero
+    else:
+        # Si no se encuentra ninguna coincidencia, puedes manejarlo como desees
+        print("No se encontró un entero en el formato esperado.")
+        return None
+
 
 def get_disease_name(disease_uri):
     # Extraer el nombre de la enfermedad desde la URI

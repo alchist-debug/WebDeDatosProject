@@ -26,7 +26,6 @@
     <form method="post" action="/query">
         <label for="symptoms">Select:</label>
         <select name="symptoms" multiple>
-            <option value="http://ex.org/yellowSputum">Yellow sputum</option>
             <option value="http://ex.org/cardiovascularFinding">Cardiovascular finding</option>
             <option value="http://ex.org/hypercapnia">Hypercapnia</option>
             <option value="http://ex.org/heavyFeeling">Heavy feeling</option>
@@ -441,9 +440,9 @@
     {% if dbpedia_results %}
         <h2>Diseases Info:</h2>
         <ul>
-            {% for disease_uri, dbpedia_summary, symptoms in dbpedia_results %}
+            {% for disease_uri, number_coincidences, total_symptoms, dbpedia_summary, symptoms in dbpedia_results %}
                 <li>
-                    <strong>Disease:</strong> {{ disease_uri }}<br>
+                    <strong>Disease:</strong> {{ disease_uri }} <strong>Coincidences:</strong> {{ number_coincidences }} / {{total_symptoms}}<br>
                     <strong>Abstract:</strong> {{ dbpedia_summary }}<br>
                     <strong>Symptoms:</strong> {{ ', '.join(symptoms) }}
                 </li>
