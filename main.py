@@ -12,19 +12,15 @@ app = Flask(__name__, static_url_path='/static')
 rdf_graph = Graph()
 
 def extract_rdf(file_path):
-    # Tu lógica para extraer RDF del archivo va aquí
     with open(file_path, 'r') as file:
         rdf_content = file.read()
     return rdf_content
 
 @app.route('/')
 def index():
-    # Ruta del archivo en el mismo directorio que la aplicación
     file_path = os.path.join(app.root_path, 'data.ttl')
 
-    # Verificar si el archivo existe
     if os.path.exists(file_path):
-        # Leer el archivo TTL y extraer el RDF
         rdf_content = extract_rdf(file_path)
 
         return render_template('index.html', rdf_content=rdf_content)
@@ -32,11 +28,9 @@ def index():
         return render_template('index.html', error='El archivo no existe')
 
 def extract_rdf(file):
-    global rdf_graph  # Usa el grafo RDF global
+    global rdf_graph  
     try:
-        # Utilizar el parser N3 para procesar el archivo TTL
         rdf_graph.parse(file, format='n3')
-        # Obtener el contenido RDF
         rdf_content = rdf_graph.serialize(format='turtle')
         return rdf_content
     except Exception as e:
@@ -47,7 +41,7 @@ def query():
     # Obtener la lista de síntomas seleccionados desde el formulario
     selected_symptoms = request.form.getlist('symptoms')
     total_symptoms = len(selected_symptoms)
-    # Construir la consulta SPARQL dinámicamente
+    # Construir la consulta SPARQL
     sparql_query = f"""
         SELECT ?disease (COUNT(?symptom) as ?coincidences)
         WHERE {{
@@ -59,16 +53,11 @@ def query():
         LIMIT 10
     """
 
-    # Preparar la consulta SPARQL
     query = prepareQuery(sparql_query)
-
-    # Ejecutar la consulta en el grafo RDF
     results = rdf_graph.query(query)
-
-    # Realizar consulta SPARQL a DBpedia para cada enfermedad
     dbpedia_results = []
 
-    # Printeamos la lista de enfermedades encontradas con su respectivo resumen y sintomas
+    # Printeamos la lista de enfermedades encontradas
     for row in results:
         disease_uri_prev = row[0].n3()
         symptoms_coincidences = row[1].n3()
@@ -83,7 +72,6 @@ def query():
     return render_template('index.html', dbpedia_results=dbpedia_results, get_disease_name=get_disease_name)
 
 def get_symptoms(disease_uri):
-    # Construimos la consulta SPARQL directamente
     sparql_query2 = f"""
         SELECT ?symptom
         WHERE {{
@@ -106,21 +94,17 @@ def generate_dbpedia_url(disease_name):
     return dbpedia_url
 
 def extraer_entero(cadena):
-    # Utilizamos una expresión regular para encontrar el entero en el formato dado
     match = re.search(r'"(-?\d+)"\^\^<http://www.w3.org/2001/XMLSchema#integer>', cadena)
     
-    # Verificamos si se encontró una coincidencia y devolvemos el entero como un int
     if match:
         entero = int(match.group(1))
         return entero
     else:
-        # Si no se encuentra ninguna coincidencia, puedes manejarlo como desees
         print("No se encontró un entero en el formato esperado.")
         return None
 
 
 def get_disease_name(disease_uri):
-    # Extraer el nombre de la enfermedad desde la URI
     name = disease_uri.split('/')[-1]
 
     if name == "Alzheimers_disease>":
@@ -132,7 +116,6 @@ def get_disease_name(disease_uri):
     return name.rstrip('>')
 
 def get_disease_name2(disease_uri):
-    # Extraer el nombre de la enfermedad desde la URI
     name = disease_uri.split('/')[-1].replace('_', ' ')
 
     if name == "Alzheimers disease>":
@@ -165,10 +148,8 @@ def query_dbpedia_abstract(disease_name):
     sparql.setQuery(dbpedia_query)
     sparql.setReturnFormat(JSON)
 
-    # Ejecutar la consulta y obtener los resultados
     results = sparql.query().convert()
 
-    # Extraer y formatear el resumen
     if results["results"]["bindings"]:
         return results["results"]["bindings"][0]["summary"]["value"]
     else:
