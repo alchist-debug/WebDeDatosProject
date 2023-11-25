@@ -65,8 +65,8 @@ def query():
         symptoms = get_symptoms(disease_uri_prev)
         disease_uri = get_disease_name(disease_uri_prev)
         dbpedia_link = generate_dbpedia_url(disease_uri)
+        dbpedia_summary = query_dbpedia_abstract(get_disease_name2(disease_uri_prev))
         disease_uri = get_disease_name2(disease_uri_prev)
-        dbpedia_summary = query_dbpedia_abstract(disease_uri)
         dbpedia_results.append((disease_uri, number_coincidences, total_symptoms, dbpedia_link, dbpedia_summary, symptoms))
 
     return render_template('index.html', dbpedia_results=dbpedia_results, get_disease_name=get_disease_name)
